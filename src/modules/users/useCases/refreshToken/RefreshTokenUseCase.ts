@@ -1,10 +1,10 @@
-import { inject, injectable } from "tsyringe";
 import { verify, sign } from "jsonwebtoken";
+import { inject, injectable } from "tsyringe";
 
-import auth from "../../../../config/auth";
-import { IUsersTokensRepository } from "../../repositories/IUsersTokensrepository";
-import { IDateProvider } from "../../../../shared/container/providers/DateProvider/IDateProvider";
-import { AppError } from "../../../../shared/errors/AppError";
+import auth from "@config/auth";
+import { IUsersTokensRepository } from "@modules/users/repositories/IUsersTokensrepository";
+import { IDateProvider } from "@shared/container/providers/DateProvider/IDateProvider";
+import { AppError } from "@shared/errors/AppError";
 
 interface IPayload {
   sub: string;
@@ -21,7 +21,7 @@ class RefreshTokenUseCase {
   constructor(
     @inject("UsersTokensRepository")
     private usersTokensRepository: IUsersTokensRepository,
-    @inject("DayjsDateProvider")
+    @inject("DateProvider")
     private dateProvider: IDateProvider
   ) {}
 

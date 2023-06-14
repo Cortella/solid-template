@@ -2,13 +2,13 @@ import "reflect-metadata";
 import express, { Request, Response, NextFunction } from "express";
 import "express-async-errors";
 import swaggerUi from "swagger-ui-express";
-import { AppError } from "./shared/errors/AppError";
+import { AppError } from "../../errors/AppError";
 
-import "./shared/container";
-import "./database";
+import "../../container";
+import "@shared/infra/typeorm";
 
 import { router } from "./routes";
-import swaggerFile from "./swagger.json";
+import swaggerFile from "../../../swagger.json";
 
 const app = express();
 const door = 3333;
