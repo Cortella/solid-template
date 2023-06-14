@@ -1,64 +1,48 @@
-import { User } from "../../model/User";
-import { IUsersRepository, ICreateUserDTO } from "../IUsersRepository";
+import { ICreateUserDTO } from "modules/users/dtos/ICreateUserDTO";
+import { Repository, getRepository } from "typeorm";
+
+import { AppError } from "../../../../shared/errors/AppError";
+import { User } from "../../entities/User";
+import { IUsersRepository } from "../IUsersRepository";
 
 class UsersRepository implements IUsersRepository {
-  private users: User[];
+  private repository: Repository<User>;
 
-  private static INSTANCE: UsersRepository;
-
-  private constructor() {
-    this.users = [];
+  constructor() {
+    this.repository = getRepository(User);
   }
 
-  public static getInstance(): UsersRepository {
-    if (!UsersRepository.INSTANCE) {
-      UsersRepository.INSTANCE = new UsersRepository();
-    }
-
-    return UsersRepository.INSTANCE;
-  }
-
-  create({ name, email }: ICreateUserDTO): User {
-    const user = new User();
-
-    Object.assign(user, {
+  async create({
+    id,
+    name,
+    email,
+    driver_license,
+    password,
+    avatar,
+  }: ICreateUserDTO): Promise<void> {
+    const user = this.repository.create({
+      id,
       name,
       email,
-      created_at: new Date(),
-      updated_at: new Date(),
+      driver_license,
+      password,
+      avatar,
     });
-
-    this.users.push(user);
-
-    return user;
+    await this.repository.save(user);
   }
 
-  findById(id: string): User | undefined {
-    const user = this.users.find((userInArray) => userInArray.id === id);
+  async findById(id: string): Promise<User> {
+    const user = this.repository.findOne({ id });
     if (!user) {
-      console.log("teste");
-      throw new Error("User not found! ");
+      throw new AppError("User not found! ");
     }
     return user;
   }
 
-  findByEmail(email: string): User | undefined {
-    const user = this.users.find((userInArray) => userInArray.email === email);
+  async findByEmail(email: string): Promise<User> {
+    const user = this.repository.findOne({ email });
 
     return user;
-  }
-
-  turnAdmin(receivedUser: User): User {
-    Object.assign(receivedUser, {
-      admin: true,
-      updated_at: new Date(),
-    });
-
-    return receivedUser;
-  }
-
-  list(): User[] {
-    return this.users;
   }
 }
 

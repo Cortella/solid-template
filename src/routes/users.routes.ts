@@ -1,26 +1,27 @@
 import { Router } from "express";
+import multer from "multer";
 
-import { createUserController } from "../modules/users/useCases/createUser";
-import { listAllUsersController } from "../modules/users/useCases/listAllUsers";
-import { showUserProfileController } from "../modules/users/useCases/showUserProfile";
-import { turnUserAdminController } from "../modules/users/useCases/turnUserAdmin";
+import uploadConfig from "../config/upload";
+
+import { ensureAuthenticated } from "../middlewares/ensuredAuthenticated";
+import { CreateUserController } from "../modules/users/useCases/createUser/CreateUserController";
+import { UpdateUserAvatarController } from "../modules/users/useCases/updateUserAvatar/UpdateUserAvatarController";
 
 const usersRoutes = Router();
 
-usersRoutes.post("/", (request, response) =>
-  createUserController.handle(request, response)
-);
+const uploadAvatar = multer(uploadConfig);
 
-usersRoutes.patch("/:user_id/admin", (request, response) =>
-  turnUserAdminController.handle(request, response)
-);
+const createUserController = new CreateUserController();
+const updateUserAvatarController = new UpdateUserAvatarController();
 
-usersRoutes.get("/:user_id", (request, response) =>
-  showUserProfileController.handle(request, response)
-);
+usersRoutes.post("/", createUserController.handle);
 
-usersRoutes.get("/", (request, response) =>
-  listAllUsersController.handle(request, response)
+usersRoutes.patch("/:user_id/admin", createUserController.handle);
+usersRoutes.patch(
+  "/avatar",
+  ensureAuthenticated,
+  uploadAvatar.single("avatar"),
+  updateUserAvatarController.handle
 );
 
 export { usersRoutes };
